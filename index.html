@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0D1F3C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="كلية ردفان">
+<title>كلية ردفان الجامعية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:      #0D1F3C;
+  --navy2:     #1B3A6B;
+  --navy3:     #2A5AA8;
+  --gold:      #C9A44A;
+  --gold2:     #E8C97A;
+  --gold3:     #F5EDD5;
+  --cream:     #F5F0E8;
+  --white:     #FFFFFF;
+  --text:      #0D1F3C;
+  --textm:     #3A5080;
+  --texts:     #8A9AB8;
+  --success:   #0d6e4c;
+  --danger:    #c53030;
+}
+html,body{height:100%;overflow:hidden;font-family:'Cairo',sans-serif;background:var(--navy)}
+#app{height:100vh;overflow:hidden;position:relative}
+
+/* ═══════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════ */
+.screen{
+  position:absolute;inset:0;
+  display:none;flex-direction:column;
+  overflow:hidden;
+}
+.screen.active{display:flex}
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:none}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+.fade-up{animation:fadeUp .5s ease both}
+.fade-up-2{animation:fadeUp .5s .1s ease both}
+.fade-up-3{animation:fadeUp .5s .2s ease both}
+.fade-up-4{animation:fadeUp .5s .3s ease both}
+.fade-up-5{animation:fadeUp .5s .4s ease both}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+#toast{
+  position:fixed;top:1rem;left:50%;transform:translateX(-50%);
+  padding:.7rem 1.6rem;border-radius:22px;
+  font-family:'Cairo',sans-serif;font-weight:700;font-size:.88rem;
+  color:#fff;z-index:9999;pointer-events:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.3);
+  animation:toastIn .3s ease;white-space:nowrap;
+  display:none;
+}
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+.header{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  padding:.75rem 1rem;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:2px solid rgba(201,164,74,.35);
+  flex-shrink:0;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  position:relative;z-index:10;
+}
+.header-left{display:flex;align-items:center;gap:.6rem}
+.header-icon{
+  width:38px;height:38px;border-radius:50%;
+  background:rgba(201,164,74,.15);
+  border:1.5px solid rgba(201,164,74,.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;flex-shrink:0;
+}
+.header-title{font-size:.95rem;font-weight:900;color:var(--gold)}
+.header-sub{font-size:.68rem;color:rgba(255,255,255,.45);margin-top:1px}
+.btn-logout{
+  padding:.35rem .85rem;border:1px solid rgba(201,164,74,.4);
+  background:transparent;color:var(--gold2);cursor:pointer;
+  border-radius:8px;font-family:'Cairo',sans-serif;
+  font-weight:700;font-size:.75rem;
+}
+
+/* ═══════════════════════════════════════
+   SCROLLABLE CONTENT
+═══════════════════════════════════════ */
+.scroll-content{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding-bottom:2rem;
+}
+.scroll-content::-webkit-scrollbar{display:none}
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
+.btn-gold{
+  width:100%;padding:.85rem;border:none;cursor:pointer;
+  border-radius:12px;font-family:'Cairo',sans-serif;
+  font-weight:900;font-size:.95rem;color:var(--navy);
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  box-shadow:0 4px 16px rgba(201,164,74,.35);
+  transition:all .2s ease;
+}
+.btn-gold:active{transform:scale(.97);opacity:.9}
+.btn-outline{
+  width:100%;padding:.75rem;border:1px solid rgba(255,255,255,.2);
+  background:transparent;color:rgba(255,255,255,.5);cursor:pointer;
+  border-radius:12px;font-family:'Cairo',sans-serif;font-weight:700;font-size:.9rem;
+  margin-top:.6rem;
+}
+
+/* ═══════════════════════════════════════
+   INPUTS
+═══════════════════════════════════════ */
+.input-label{
+  display:block;font-size:.8rem;font-weight:700;
+  color:rgba(201,164,74,.9);margin-bottom:.35rem;text-align:right;
+}
+input[type=text],input[type=password],input[type=number],textarea{
+  width:100%;padding:.7rem .9rem;
+  border:1.5px solid rgba(201,164,74,.3);
+  border-radius:10px;font-family:'Cairo',sans-serif;
+  font-size:.9rem;direction:rtl;text-align:right;
+  margin-bottom:.9rem;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+input:focus,textarea:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(201,164,74,.2);
+}
+
+/* ═══════════════════════════════════════
+   SCREEN: LOGIN
+═══════════════════════════════════════ */
+#login-screen{
+  background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 55%,#0D2A50 100%);
+  justify-content:center;align-items:center;
+  padding:1.5rem;
+}
+.login-deco1{
+  position:absolute;top:-80px;right:-80px;width:240px;height:240px;
+  border-radius:50%;background:rgba(201,164,74,.07);pointer-events:none;
+}
+.login-deco2{
+  position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;
+  border-radius:50%;background:rgba(201,164,74,.05);pointer-events:none;
+}
+.login-inner{width:100%;max-width:400px;z-index:1}
+.logo-section{text-align:center;margin-bottom:1.8rem}
+.logo-circle{
+  width:110px;height:110px;border-radius:50%;
+  border:3px solid rgba(201,164,74,.5);
+  background:rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1rem;font-size:3.2rem;
+  box-shadow:0 0 0 8px rgba(201,164,74,.08),0 12px 40px rgba(0,0,0,.4);
+}
+.logo-img{width:90px;height:90px;object-fit:contain;border-radius:50%}
+.login-title{
+  font-size:1.5rem;font-weight:900;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:.3rem;
+}
+.login-sub{font-size:.78rem;color:rgba(255,255,255,.45);margin-top:.2rem}
+.login-card{
+  background:rgba(255,255,255,.08);backdrop-filter:blur(16px);
+  border-radius:20px;padding:1.4rem;
+  border:1px solid rgba(201,164,74,.25);
+}
+.toggle{
+  display:flex;background:rgba(0,0,0,.25);
+  border-radius:12px;padding:4px;margin-bottom:1.2rem;
+  border:1px solid rgba(201,164,74,.15);
+}
+.toggle-btn{
+  flex:1;padding:.55rem;border:none;cursor:pointer;
+  font-family:'Cairo',sans-serif;font-weight:700;font-size:.85rem;
+  border-radius:9px;transition:all .25s ease;
+  background:transparent;color:rgba(255,255,255,.5);
+}
+.toggle-btn.active{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--navy);
+}
+.login-card input{
+  background:rgba(255,255,255,.1);color:#fff;
+  border-color:rgba(201,164,74,.3);
+}
+.login-card input::placeholder{color:rgba(255,255,255,.3)}
+.hint{font-size:.72rem;color:rgba(255,255,255,.3);text-align:center;margin-top:.8rem}
+
+/* ═══════════════════════════════════════
+   SCREEN: STUDENT
+═══════════════════════════════════════ */
+#student-screen{background:var(--cream)}
+.hero{
+  margin:.9rem;border-radius:16px;padding:1.2rem 1.3rem;
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  display:flex;align-items:center;justify-content:space-between;
+  border:1px solid rgba(201,164,74,.2);
+  box-shadow:0 8px 24px rgba(13,31,60,.25);
+}
+.hero-text{}
+.hero-greet{font-size:1rem;font-weight:900;color:var(--gold);margin-bottom:.2rem}
+.hero-name{font-size:.82rem;color:var(--gold2);margin-bottom:.2rem}
+.hero-sub{font-size:.72rem;color:rgba(255,255,255,.5)}
+.hero-icon{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(201,164,74,.15);
+  border:1.5px solid rgba(201,164,74,.3);
+  display:flex;align-items:center;justify-content:center;font-size:1.8rem;
+  flex-shrink:0;
+}
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:.6rem;margin:.9rem;
+}
+.stat-card{
+  background:#fff;border-radius:12px;padding:.9rem .5rem;
+  text-align:center;border:1px solid rgba(201,164,74,.18);
+  box-shadow:0 3px 10px rgba(0,0,0,.06);
+}
+.stat-icon{font-size:1.3rem;margin-bottom:.2rem}
+.stat-val{font-size:1.2rem;font-weight:900;color:var(--navy)}
+.stat-lbl{font-size:.65rem;color:var(--texts);margin-top:.1rem}
+.search-wrap{padding:0 .9rem;margin-bottom:.7rem}
+.search-input{
+  background:#fff;border-radius:11px;padding:.7rem .9rem;
+  border:1.5px solid rgba(201,164,74,.25);
+  color:var(--text);font-size:.85rem;margin-bottom:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+.sec-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 .9rem;margin-bottom:.6rem;
+}
+.sec-title{font-size:1rem;font-weight:900;color:var(--navy)}
+.sec-count{font-size:.75rem;color:var(--texts)}
+.spec-list{padding:0 .9rem;display:flex;flex-direction:column;gap:.6rem}
+.spec-card{
+  background:#fff;border-radius:13px;padding:.9rem;
+  display:flex;align-items:center;gap:.7rem;
+  border:1px solid rgba(201,164,74,.15);
+  box-shadow:0 3px 10px rgba(0,0,0,.06);
+  cursor:pointer;transition:all .2s ease;
+  -webkit-tap-highlight-color:rgba(201,164,74,.1);
+}
+.spec-card:active{transform:scale(.98);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.spec-icon-wrap{
+  width:48px;height:48px;border-radius:12px;
+  background:var(--gold3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;flex-shrink:0;
+  border:1.5px solid rgba(201,164,74,.25);
+}
+.spec-name{font-size:.9rem;font-weight:800;color:var(--navy);text-align:right}
+.spec-nameen{font-size:.7rem;color:var(--texts);text-align:right;margin-top:.15rem}
+.spec-badges{display:flex;gap:.35rem;margin-top:.4rem;justify-content:flex-end}
+.sm-badge{
+  background:rgba(13,31,60,.07);border-radius:8px;
+  padding:.1rem .5rem;font-size:.68rem;color:var(--textm);font-weight:600;
+}
+.spec-arrow{font-size:1rem;color:var(--gold);flex-shrink:0}
+.empty-state{text-align:center;padding:2.5rem 1rem;color:var(--texts)}
+.empty-icon{font-size:2.5rem;margin-bottom:.5rem}
+.footer-text{
+  text-align:center;font-size:.7rem;color:var(--texts);
+  margin:1.5rem .9rem .5rem;
+}
+
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(8,21,40,.75);
+  z-index:100;display:none;align-items:flex-end;
+  backdrop-filter:blur(6px);
+}
+.modal-overlay.open{display:flex}
+.modal-card{
+  background:var(--cream);border-radius:22px 22px 0 0;
+  width:100%;max-height:88vh;overflow-y:auto;
+  padding:1.2rem 1.2rem 2rem;
+  border-top:2px solid rgba(201,164,74,.3);
+  animation:slideUp .35s cubic-bezier(.34,1.56,.64,1) both;
+}
+.modal-card::-webkit-scrollbar{display:none}
+.modal-handle{
+  width:36px;height:3px;background:rgba(0,0,0,.12);
+  border-radius:2px;margin:0 auto .9rem;
+}
+.modal-close{
+  float:left;width:30px;height:30px;border-radius:50%;
+  background:rgba(201,164,74,.15);border:1px solid rgba(201,164,74,.3);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:.85rem;font-weight:900;color:var(--navy2);
+}
+.modal-icon{
+  width:64px;height:64px;border-radius:16px;
+  background:var(--gold3);display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;border:2px solid rgba(201,164,74,.35);
+  margin-bottom:.9rem;float:right;clear:both;
+}
+.modal-name{font-size:1.2rem;font-weight:900;color:var(--navy);text-align:right;clear:both}
+.modal-nameen{font-size:.78rem;color:var(--texts);text-align:right;margin:.2rem 0 .8rem}
+.badge-row{display:flex;gap:.5rem;justify-content:flex-end;margin-bottom:.9rem;flex-wrap:wrap}
+.badge{
+  background:rgba(27,58,107,.1);border-radius:18px;
+  padding:.25rem .8rem;font-size:.78rem;font-weight:700;color:var(--navy2);
+  border:1px solid rgba(27,58,107,.2);
+}
+.desc-box{
+  background:rgba(27,58,107,.05);border-radius:11px;padding:.9rem;
+  border-right:3px solid var(--gold);margin-bottom:.9rem;
+}
+.desc-text{font-size:.85rem;color:var(--textm);line-height:1.8;text-align:right}
+.req-title{font-size:.9rem;font-weight:800;color:var(--navy);text-align:right;margin-bottom:.5rem}
+.req-item{display:flex;align-items:flex-start;justify-content:flex-end;gap:.4rem;margin-bottom:.4rem}
+.req-bullet{color:var(--gold);font-size:.6rem;margin-top:.35rem;flex-shrink:0}
+.req-text{font-size:.82rem;color:var(--textm);text-align:right;line-height:1.7}
+.applied-box{
+  background:rgba(13,110,76,.1);border:1px solid rgba(13,110,76,.3);
+  border-radius:11px;padding:.9rem;text-align:center;
+  color:var(--success);font-weight:700;font-size:.88rem;
+}
+
+/* ═══════════════════════════════════════
+   SCREEN: ADMIN
+═══════════════════════════════════════ */
+#admin-screen{
+  background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 60%,#0D2A50 100%);
+}
+.admin-banner{
+  margin:.9rem;border-radius:13px;padding:.9rem 1rem;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(201,164,74,.25);
+  display:flex;align-items:center;gap:.7rem;
+}
+.admin-banner-icon{font-size:1.6rem}
+.admin-banner-title{font-size:.9rem;font-weight:900;color:var(--gold2);text-align:right}
+.admin-banner-sub{font-size:.7rem;color:rgba(255,255,255,.4);text-align:right;margin-top:.1rem}
+.online-badge{
+  background:rgba(13,110,76,.25);border-radius:10px;
+  padding:.2rem .6rem;border:1px solid rgba(93,232,160,.3);
+  font-size:.7rem;color:#5de8a0;font-weight:700;flex-shrink:0;margin-right:auto;
+}
+.admin-content{padding:.9rem}
+.admin-sec-title{
+  font-size:.95rem;font-weight:900;color:var(--gold2);text-align:right;
+  margin-bottom:.8rem;border-bottom:1px solid rgba(201,164,74,.2);padding-bottom:.5rem;
+}
+.admin-add-btn{margin-bottom:1rem}
+.admin-row{
+  background:rgba(255,255,255,.07);border-radius:11px;
+  padding:.8rem .9rem;margin-bottom:.6rem;
+  border:1px solid rgba(201,164,74,.12);
+  display:flex;align-items:center;gap:.6rem;
+}
+.admin-row-icon{font-size:1.5rem;flex-shrink:0}
+.admin-row-name{font-size:.85rem;font-weight:700;color:var(--cream);text-align:right}
+.admin-row-sub{font-size:.7rem;color:rgba(255,255,255,.38);text-align:right;margin-top:.1rem}
+.admin-btns{display:flex;gap:.4rem;flex-shrink:0}
+.edit-btn{
+  background:rgba(201,164,74,.15);border:1px solid rgba(201,164,74,.3);
+  border-radius:8px;padding:.4rem .5rem;cursor:pointer;font-size:.9rem;
+}
+.del-btn{
+  background:rgba(220,53,69,.15);border:1px solid rgba(220,53,69,.3);
+  border-radius:8px;padding:.4rem .5rem;cursor:pointer;font-size:.9rem;
+}
+.admin-label{
+  display:block;font-size:.78rem;font-weight:700;
+  color:rgba(232,201,122,.85);margin-bottom:.3rem;text-align:right;
+}
+.admin-input{
+  background:rgba(255,255,255,.09);color:var(--cream);
+  border-color:rgba(201,164,74,.25);
+}
+.admin-input::placeholder{color:rgba(255,255,255,.25)}
+textarea.admin-input{height:80px;resize:none}
+.firebase-box{
+  margin-top:1.2rem;border-radius:12px;padding:.9rem;
+  background:rgba(201,164,74,.08);border:1px solid rgba(201,164,74,.2);
+}
+.firebase-title{font-size:.8rem;font-weight:800;color:var(--gold2);text-align:right;margin-bottom:.6rem}
+.firebase-code{
+  background:rgba(0,0,0,.45);border-radius:8px;padding:.7rem;
+  color:#7dd3fc;font-size:.7rem;font-family:monospace;
+  white-space:pre;overflow-x:auto;direction:ltr;text-align:left;
+}
+
+/* ═══════════════════════════════════════
+   CONFIRM DIALOG
+═══════════════════════════════════════ */
+.confirm-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:200;display:none;align-items:center;justify-content:center;
+  padding:1.5rem;
+}
+.confirm-overlay.open{display:flex}
+.confirm-card{
+  background:#fff;border-radius:18px;padding:1.5rem;
+  max-width:320px;width:100%;text-align:center;
+  box-shadow:0 24px 60px rgba(0,0,0,.4);
+  animation:fadeIn .25s ease;
+}
+.confirm-icon{font-size:2.5rem;margin-bottom:.7rem}
+.confirm-title{font-size:1rem;font-weight:900;color:var(--navy);margin-bottom:.4rem}
+.confirm-msg{font-size:.82rem;color:#667;margin-bottom:1.2rem;line-height:1.6}
+.confirm-btns{display:flex;gap:.6rem;justify-content:center}
+.btn-danger{
+  padding:.55rem 1.2rem;border:none;cursor:pointer;
+  border-radius:10px;font-family:'Cairo',sans-serif;font-weight:700;font-size:.85rem;
+  background:linear-gradient(135deg,#8b1a1a,var(--danger));color:#fff;
+}
+.btn-cancel{
+  padding:.55rem 1.2rem;border:1.5px solid #ddd;cursor:pointer;
+  border-radius:10px;font-family:'Cairo',sans-serif;font-weight:700;font-size:.85rem;
+  background:transparent;color:#666;
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══════════ TOAST ══════════ -->
+  <div id="toast"></div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 1: LOGIN
+  ══════════════════════════════════════ -->
+  <div id="login-screen" class="screen active">
+    <div class="login-deco1"></div>
+    <div class="login-deco2"></div>
+    <div class="login-inner">
+
+      <div class="logo-section fade-up">
+        <div class="logo-circle">
+          <img src="logo.png" class="logo-img" alt="شعار كلية ردفان"
+            onerror="this.style.display='none';this.parentElement.innerHTML='🏛️'">
+        </div>
+        <div class="login-title">كلية ردفان الجامعية</div>
+        <div class="login-sub">Radfan University College</div>
+        <div class="login-sub">جامعة لحج • تأسست 1998</div>
+      </div>
+
+      <div class="login-card fade-up-2">
+        <div class="toggle">
+          <button class="toggle-btn active" onclick="setMode('student')" id="btn-student">🎓 طالب</button>
+          <button class="toggle-btn" onclick="setMode('admin')" id="btn-admin">🔐 مسؤول</button>
+        </div>
+
+        <div id="student-id-wrap">
+          <label class="input-label">الرقم الجامعي</label>
+          <input type="text" id="login-id" placeholder="أدخل رقمك الجامعي...">
+        </div>
+
+        <label class="input-label" id="pass-label">كلمة المرور</label>
+        <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+
+        <button class="btn-gold" onclick="doLogin()" id="login-btn">دخول ←</button>
+
+        <div class="hint" id="login-hint">💡 للتجربة: 6+ أرقام رقم جامعي، 4+ حروف كلمة مرور</div>
+      </div>
+
+      <div class="footer-text fade-up-4" style="color:rgba(255,255,255,.2)">
+        © 2024 كلية ردفان الجامعية — جامعة لحج
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 2: STUDENT
+  ══════════════════════════════════════ -->
+  <div id="student-screen" class="screen">
+    <div class="header">
+      <div class="header-left">
+        <div class="header-icon">🏛️</div>
+        <div>
+          <div class="header-title">كلية ردفان الجامعية</div>
+          <div class="header-sub">البوابة الأكاديمية</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">خروج ↩</button>
+    </div>
+
+    <div class="scroll-content">
+      <!-- Hero -->
+      <div class="hero fade-up" style="margin-top:.9rem">
+        <div class="hero-text">
+          <div class="hero-greet">أهلاً بك 🎓</div>
+          <div class="hero-name" id="hero-name">الطالب</div>
+          <div class="hero-sub">استعرض التخصصات وقدّم طلبك الآن</div>
+        </div>
+        <div class="hero-icon">🏛️</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row fade-up-2">
+        <div class="stat-card">
+          <div class="stat-icon">🎓</div>
+          <div class="stat-val" id="stat-specs">6</div>
+          <div class="stat-lbl">التخصصات</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-val" id="stat-seats">520</div>
+          <div class="stat-lbl">المقاعد</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏛</div>
+          <div class="stat-val">1998</div>
+          <div class="stat-lbl">التأسيس</div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-wrap fade-up-3">
+        <input type="text" class="search-input" placeholder="🔍 بحث عن تخصص..." oninput="filterSpecs(this.value)">
+      </div>
+
+      <!-- Section Header -->
+      <div class="sec-header fade-up-4">
+        <div class="sec-title">التخصصات الأكاديمية</div>
+        <div class="sec-count" id="sec-count">6 تخصص</div>
+      </div>
+
+      <!-- Spec List -->
+      <div class="spec-list fade-up-5" id="spec-list"></div>
+
+      <div class="footer-text">© 2024 كلية ردفان الجامعية — جامعة لحج</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 3: ADMIN
+  ══════════════════════════════════════ -->
+  <div id="admin-screen" class="screen">
+    <div class="header" style="background:linear-gradient(135deg,#0D1F3C,#1a0a40)">
+      <div class="header-left">
+        <div class="header-icon" style="border-color:rgba(192,132,252,.4);background:rgba(192,132,252,.1)">🔐</div>
+        <div>
+          <div class="header-title" style="color:#c084fc">لوحة تحكم المسؤول</div>
+          <div class="header-sub">Admin Dashboard</div>
+        </div>
+      </div>
+      <button class="btn-logout" style="border-color:rgba(192,132,252,.4);color:#c084fc" onclick="doLogout()">خروج ↩</button>
+    </div>
+
+    <div class="scroll-content">
+      <!-- Admin Banner -->
+      <div class="admin-banner fade-up" style="margin-top:.9rem">
+        <div class="admin-banner-icon">🔐</div>
+        <div style="flex:1">
+          <div class="admin-banner-title">وضع المسؤول — تحكم كامل</div>
+          <div class="admin-banner-sub">التعديلات تنعكس فوراً على جميع الطلاب</div>
+        </div>
+        <div class="online-badge">● متصل</div>
+      </div>
+
+      <!-- Admin List View -->
+      <div class="admin-content" id="admin-list-view">
+        <button class="btn-gold admin-add-btn" onclick="showAdminForm(null)">➕ إضافة تخصص جديد</button>
+        <div class="admin-sec-title">التخصصات المسجلة (<span id="admin-count">0</span>)</div>
+        <div id="admin-list"></div>
+      </div>
+
+      <!-- Admin Form View -->
+      <div class="admin-content" id="admin-form-view" style="display:none">
+        <div class="admin-sec-title" id="form-title">➕ تخصص جديد</div>
+
+        <label class="admin-label">اسم التخصص *</label>
+        <input type="text" class="admin-input" id="f-name" placeholder="مثال: علوم الحاسوب">
+
+        <label class="admin-label">الاسم بالإنجليزية</label>
+        <input type="text" class="admin-input" id="f-nameen" placeholder="Computer Science" style="direction:ltr;text-align:left">
+
+        <label class="admin-label">الأيقونة (Emoji)</label>
+        <input type="text" class="admin-input" id="f-icon" placeholder="🎓">
+
+        <label class="admin-label">مدة الدراسة</label>
+        <input type="text" class="admin-input" id="f-duration" placeholder="4 سنوات">
+
+        <label class="admin-label">عدد المقاعد</label>
+        <input type="number" class="admin-input" id="f-seats" placeholder="60">
+
+        <label class="admin-label">وصف التخصص *</label>
+        <textarea class="admin-input" id="f-desc" placeholder="أدخل وصفاً شاملاً للتخصص..." style="height:80px;resize:none"></textarea>
+
+        <label class="admin-label">متطلبات القبول (سطر لكل متطلب)</label>
+        <textarea class="admin-input" id="f-reqs" placeholder="شهادة الثانوية العامة&#10;اجتياز اختبار القبول" style="height:75px;resize:none"></textarea>
+
+        <button class="btn-gold" onclick="saveSpec()" id="save-btn" style="margin-top:.4rem">✅ إضافة التخصص</button>
+        <button class="btn-outline" onclick="showAdminList()">إلغاء</button>
+
+        <div class="firebase-box">
+          <div class="firebase-title">🔥 ربط Firebase — تحديث فوري للطلاب</div>
+          <div class="firebase-code">onSnapshot(collection(db,"specs"),
+  snap => setSpecs(
+    snap.docs.map(d=>
+      ({id:d.id,...d.data()}))
+  )
+);</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SPEC MODAL ══════════ -->
+  <div class="modal-overlay" id="spec-modal" onclick="closeModal(event)">
+    <div class="modal-card">
+      <div class="modal-handle"></div>
+      <div class="modal-close" onclick="closeModalDirect()">✕</div>
+      <div class="modal-icon" id="modal-icon">🎓</div>
+      <div class="modal-name" id="modal-name"></div>
+      <div class="modal-nameen" id="modal-nameen"></div>
+      <div class="badge-row" id="modal-badges"></div>
+      <div class="desc-box"><div class="desc-text" id="modal-desc"></div></div>
+      <div class="req-title">📋 متطلبات القبول</div>
+      <div id="modal-reqs"></div>
+      <div style="height:1rem"></div>
+      <div id="modal-apply-wrap">
+        <button class="btn-gold" onclick="applySpec()" id="apply-btn">📝 تقديم طلب الالتحاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ CONFIRM DELETE ══════════ -->
+  <div class="confirm-overlay" id="confirm-dialog">
+    <div class="confirm-card">
+      <div class="confirm-icon">⚠️</div>
+      <div class="confirm-title">تأكيد الحذف</div>
+      <div class="confirm-msg" id="confirm-msg"></div>
+      <div class="confirm-btns">
+        <button class="btn-danger" onclick="confirmDelete()">نعم، احذف</button>
+        <button class="btn-cancel" onclick="closeConfirm()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+let specs = [
+  {id:'1',icon:'🔬',name:'العلوم والتقنية',nameEn:'Science & Technology',
+   desc:'يُعنى بتأهيل الطلاب في مجالات الفيزياء التطبيقية والكيمياء وعلوم الأحياء وتقنيات المختبرات الحديثة.',
+   reqs:['شهادة الثانوية العامة علمي بمعدل 75%+','اجتياز اختبار القبول','مقابلة أكاديمية'],
+   duration:'4 سنوات',seats:70},
+  {id:'2',icon:'💻',name:'علوم الحاسوب',nameEn:'Computer Science',
+   desc:'يُغطي البرمجة وقواعد البيانات والذكاء الاصطناعي وأمن المعلومات وشبكات الحاسوب وفق المعايير الدولية.',
+   reqs:['شهادة الثانوية العامة بمعدل 70%+','اجتياز اختبار القبول','إتقان أساسيات الرياضيات'],
+   duration:'4 سنوات',seats:80},
+  {id:'3',icon:'📊',name:'الاقتصاد والمالية',nameEn:'Economics & Finance',
+   desc:'يُهيئ الطلاب لمهن في التحليل المالي والمحاسبة والتدقيق وإدارة الاستثمار وفق المعايير الدولية.',
+   reqs:['شهادة الثانوية العامة بمعدل 65%+','اجتياز اختبار القبول'],
+   duration:'4 سنوات',seats:100},
+  {id:'4',icon:'📐',name:'الرياضيات التطبيقية',nameEn:'Applied Mathematics',
+   desc:'يُركز على الرياضيات البحتة والتطبيقية والإحصاء والنمذجة الرياضية وحل المسائل العلمية المعقدة.',
+   reqs:['شهادة الثانوية العامة علمي بمعدل 75%+','اجتياز اختبار الرياضيات'],
+   duration:'4 سنوات',seats:60},
+  {id:'5',icon:'📖',name:'اللغة العربية وآدابها',nameEn:'Arabic Language & Literature',
+   desc:'يُنمّي الكفاءة اللغوية والبلاغية والنقد الأدبي ويُؤهل للتدريس والترجمة والبحث الأكاديمي.',
+   reqs:['شهادة الثانوية العامة بمعدل 60%+','اجتياز اختبار القبول'],
+   duration:'4 سنوات',seats:90},
+  {id:'6',icon:'🏢',name:'إدارة الأعمال',nameEn:'Business Administration',
+   desc:'يُعدّ قادة مستقبليين قادرين على إدارة المنظمات وصياغة الاستراتيجيات في بيئة الأعمال المتغيرة.',
+   reqs:['شهادة الثانوية العامة بمعدل 60%+','اجتياز اختبار القبول'],
+   duration:'4 سنوات',seats:120},
+];
+
+const ADMIN_PASS = 'radfan2024admin';
+let currentMode = 'student';
+let currentUser = null;
+let editingId   = null;
+let deleteId    = null;
+let appliedIds  = new Set();
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type='info'){
+  const t = document.getElementById('toast');
+  const colors = {success:'#0d6e4c', error:'#c53030', info:'#1B3A6B'};
+  t.style.background = colors[type]||colors.info;
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.style.display='none'; }, 3200);
+}
+
+// ══════════════════════════════════════════════
+//  SCREENS
+// ══════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════════════
+function setMode(mode){
+  currentMode = mode;
+  document.getElementById('btn-student').classList.toggle('active', mode==='student');
+  document.getElementById('btn-admin').classList.toggle('active', mode==='admin');
+  document.getElementById('student-id-wrap').style.display = mode==='student'?'block':'none';
+  document.getElementById('pass-label').textContent = mode==='admin'?'كلمة مرور المسؤول':'كلمة المرور';
+  document.getElementById('login-hint').style.display = mode==='student'?'block':'none';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-id').value = '';
+}
+
+function doLogin(){
+  const id   = document.getElementById('login-id').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
+  const btn  = document.getElementById('login-btn');
+  btn.textContent = '⌛ جارٍ التحقق...';
+  btn.disabled = true;
+  setTimeout(()=>{
+    btn.textContent = 'دخول ←';
+    btn.disabled = false;
+    if(currentMode==='admin'){
+      if(pass===ADMIN_PASS){ goAdmin(); }
+      else { showToast('كلمة المرور غير صحيحة ✕','error'); }
+    } else {
+      if(id.length>=6 && pass.length>=4){
+        currentUser = {id, name:'الطالب '+id};
+        goStudent();
+      } else {
+        showToast('يرجى إدخال بيانات صحيحة','error');
+      }
+    }
+  }, 800);
+}
+
+function goStudent(){
+  document.getElementById('hero-name').textContent = currentUser.name;
+  renderSpecs(specs);
+  showScreen('student-screen');
+}
+
+function goAdmin(){
+  renderAdminList();
+  showScreen('admin-screen');
+}
+
+function doLogout(){
+  currentUser = null;
+  document.getElementById('login-id').value='';
+  document.getElementById('login-pass').value='';
+  setMode('student');
+  showScreen('login-screen');
+}
+
+// ══════════════════════════════════════════════
+//  RENDER SPECS (STUDENT)
+// ══════════════════════════════════════════════
+function renderSpecs(list){
+  const total = specs.reduce((a,s)=>a+s.seats,0);
+  document.getElementById('stat-specs').textContent  = specs.length;
+  document.getElementById('stat-seats').textContent  = total;
+  document.getElementById('sec-count').textContent   = list.length+' تخصص';
+
+  const container = document.getElementById('spec-list');
+  if(list.length===0){
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div>لا توجد نتائج مطابقة</div></div>`;
+    return;
+  }
+  container.innerHTML = list.map(s=>`
+    <div class="spec-card" onclick="openModal('${s.id}')">
+      <div class="spec-icon-wrap">${s.icon}</div>
+      <div style="flex:1">
+        <div class="spec-name">${s.name}</div>
+        <div class="spec-nameen">${s.nameEn}</div>
+        <div class="spec-badges">
+          <span class="sm-badge">⏱ ${s.duration}</span>
+          <span class="sm-badge">👥 ${s.seats}</span>
+        </div>
+      </div>
+      <div class="spec-arrow">←</div>
+    </div>
+  `).join('');
+}
+
+function filterSpecs(q){
+  const filtered = specs.filter(s=>
+    s.name.includes(q) || s.nameEn.toLowerCase().includes(q.toLowerCase())
+  );
+  renderSpecs(filtered);
+}
+
+// ══════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════
+let currentSpecId = null;
+function openModal(id){
+  const s = specs.find(x=>x.id===id);
+  if(!s) return;
+  currentSpecId = id;
+  document.getElementById('modal-icon').textContent   = s.icon;
+  document.getElementById('modal-name').textContent   = s.name;
+  document.getElementById('modal-nameen').textContent = s.nameEn;
+  document.getElementById('modal-desc').textContent   = s.desc;
+  document.getElementById('modal-badges').innerHTML   =
+    `<span class="badge">⏱ ${s.duration}</span><span class="badge">👥 ${s.seats} مقعد</span>`;
+  document.getElementById('modal-reqs').innerHTML     =
+    s.reqs.map(r=>`<div class="req-item"><span class="req-bullet">◆</span><span class="req-text">${r}</span></div>`).join('');
+
+  const applied = appliedIds.has(id);
+  document.getElementById('modal-apply-wrap').innerHTML = applied
+    ? `<div class="applied-box">✅ تم إرسال طلبك بنجاح! سنتواصل معك قريباً.</div>`
+    : `<button class="btn-gold" onclick="applySpec()">📝 تقديم طلب الالتحاق</button>`;
+
+  document.getElementById('spec-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function applySpec(){
+  appliedIds.add(currentSpecId);
+  const s = specs.find(x=>x.id===currentSpecId);
+  document.getElementById('modal-apply-wrap').innerHTML =
+    `<div class="applied-box">✅ تم إرسال طلبك بنجاح! سنتواصل معك قريباً.</div>`;
+  showToast(`✅ تم تقديم طلبك: ${s.name}`,'success');
+}
+
+function closeModal(e){
+  if(e.target===document.getElementById('spec-modal')) closeModalDirect();
+}
+function closeModalDirect(){
+  document.getElementById('spec-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ══════════════════════════════════════════════
+//  ADMIN
+// ══════════════════════════════════════════════
+function renderAdminList(){
+  document.getElementById('admin-count').textContent = specs.length;
+  document.getElementById('admin-list').innerHTML = specs.map(s=>`
+    <div class="admin-row">
+      <div class="admin-row-icon">${s.icon}</div>
+      <div style="flex:1">
+        <div class="admin-row-name">${s.name}</div>
+        <div class="admin-row-sub">${s.nameEn} • ${s.seats} مقعد</div>
+      </div>
+      <div class="admin-btns">
+        <button class="edit-btn" onclick="showAdminForm('${s.id}')">✏️</button>
+        <button class="del-btn"  onclick="askDelete('${s.id}','${s.name}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showAdminList(){
+  document.getElementById('admin-list-view').style.display='block';
+  document.getElementById('admin-form-view').style.display='none';
+  renderAdminList();
+}
+
+function showAdminForm(id){
+  editingId = id;
+  document.getElementById('admin-list-view').style.display='none';
+  document.getElementById('admin-form-view').style.display='block';
+
+  if(id){
+    const s = specs.find(x=>x.id===id);
+    document.getElementById('form-title').textContent   = '✏️ تعديل تخصص';
+    document.getElementById('save-btn').textContent     = '💾 حفظ التعديلات';
+    document.getElementById('f-name').value     = s.name;
+    document.getElementById('f-nameen').value   = s.nameEn;
+    document.getElementById('f-icon').value     = s.icon;
+    document.getElementById('f-duration').value = s.duration;
+    document.getElementById('f-seats').value    = s.seats;
+    document.getElementById('f-desc').value     = s.desc;
+    document.getElementById('f-reqs').value     = s.reqs.join('\n');
+  } else {
+    document.getElementById('form-title').textContent = '➕ تخصص جديد';
+    document.getElementById('save-btn').textContent   = '✅ إضافة التخصص';
+    ['f-name','f-nameen','f-icon','f-duration','f-seats','f-desc','f-reqs']
+      .forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f-icon').value     = '🎓';
+    document.getElementById('f-duration').value = '4 سنوات';
+    document.getElementById('f-seats').value    = '60';
+  }
+}
+
+function saveSpec(){
+  const name = document.getElementById('f-name').value.trim();
+  const desc = document.getElementById('f-desc').value.trim();
+  if(!name||!desc){ showToast('يرجى ملء الاسم والوصف ✕','error'); return; }
+
+  const data = {
+    name, desc,
+    nameEn:   document.getElementById('f-nameen').value.trim(),
+    icon:     document.getElementById('f-icon').value.trim()||'🎓',
+    duration: document.getElementById('f-duration').value.trim()||'4 سنوات',
+    seats:    parseInt(document.getElementById('f-seats').value)||60,
+    reqs:     document.getElementById('f-reqs').value.split('\n').filter(r=>r.trim()),
+  };
+
+  if(editingId){
+    specs = specs.map(s=>s.id===editingId?{...s,...data}:s);
+    showToast('✅ تم تحديث التخصص بنجاح','success');
+  } else {
+    specs.push({...data, id:Date.now().toString()});
+    showToast('✅ تم إضافة التخصص بنجاح','success');
+  }
+  showAdminList();
+}
+
+// Delete
+function askDelete(id, name){
+  deleteId = id;
+  document.getElementById('confirm-msg').textContent = `هل تريد حذف تخصص "${name}" نهائياً؟ لا يمكن التراجع.`;
+  document.getElementById('confirm-dialog').classList.add('open');
+}
+function confirmDelete(){
+  specs = specs.filter(s=>s.id!==deleteId);
+  closeConfirm();
+  renderAdminList();
+  showToast('🗑️ تم حذف التخصص','error');
+}
+function closeConfirm(){
+  document.getElementById('confirm-dialog').classList.remove('open');
+  deleteId = null;
+}
+
+// Init
+renderSpecs(specs);
+</script>
+</body>
+</html>
