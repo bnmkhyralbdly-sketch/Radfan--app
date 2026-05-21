@@ -1,0 +1,27 @@
+{
+  "name": "كلية ردفان الجامعية",
+  "short_name": "ردفان",
+  "description": "بوابة كلية ردفان الجامعية — جامعة لحج",
+  "start_url": "/Radfan--app/index.html",
+  "scope": "/Radfan--app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0D1F3C",
+  "theme_color": "#C9A44A",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
