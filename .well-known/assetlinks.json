@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "io.github.bnmkhyralbdly_sketch.twa",
-        "sha256_cert_fingerprints": ["70:E4:8E:B1:E7:F7:FC:DA:D1:69:64:58:55:B0:47:30:E5:B1:B0:89:B5:9D:4C:CA:86:53:DA:DA:95:F0:5E:01"]
-      }
-    }]
